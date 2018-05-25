@@ -20,6 +20,11 @@
     high_availability_priority: "{{ current_vm.high_availability_priority | default(current_vm.profile.high_availability_priority) | default(omit) }}"
     storage_domain: "{{ current_vm.storage_domain | default(current_vm.profile.storage_domain) | default(omit) }}"
     timeout: "{{ vm_infra_create_single_timeout }}"
+
+    placement_policy: "{{current_vm.placement_policy | default(omit)}}"
+    host: "{{current_vm.host | default(omit)}}"
+    host_devices: "{{current_vm.host_devices | default(omit)}}"
+  
   changed_when: false
   async: "{{ vm_infra_create_single_timeout }}"
   poll: 0
