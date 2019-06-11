@@ -20,3 +20,4 @@
     - "{{ affinity_groups | default([]) }}"
   tags:
     - affinity_groups
+  no_log: "{{ log_status | default(False)}}"

@@ -33,6 +33,7 @@
     - "profile.disks"
     - flags:
       skip_missing: true
+  no_log: "{{ log_status | default(False)}}"
 
 - name: Manage profile NICs
   ovirt_nic:
@@ -48,6 +49,7 @@
     - "profile.nics"
     - flags:
       skip_missing: true
+  no_log: "{{ log_status | default(False)}}"
 
 - name: Manage virtual machines NICs
   ovirt_nic:
@@ -63,6 +65,7 @@
     - "nics"
     - flags:
       skip_missing: true
+  no_log: "{{ log_status | default(False)}}"
 
 - name: Manage VMs state
   include_tasks: manage_state.yml
@@ -71,7 +74,7 @@
     loop_var: "current_vm"
 
 - name: Wait for VMs to be started
-  no_log: "{{ not debug_vm_create }}"
+  no_log: "{{ log_status | default(False)}}"
   async_status: "jid={{ item.ansible_job_id }}"
   register: job_result
   with_items: "{{ started_vms }}"
@@ -87,6 +90,7 @@
     name: "{{ item }}"
     vms: "{{ create_vms|to_json|from_json|json_query(query)|map(attribute='name') | list }}"
   with_items: "{{ create_vms | selectattr('tag', 'defined') | map(attribute='tag') | list | unique }}"
+  no_log: "{{ log_status | default(False)}}"
   vars:
     query: "[?contains(tag, '{{ item }}')]"
 
@@ -96,6 +100,7 @@
     name: "{{ item }}"
     vms: "{{ create_vms|to_json|from_json|json_query(query)|map(attribute='name') | list }}"
   with_items: "{{ create_vms | selectattr('profile', 'defined') | map(attribute='profile') | selectattr('tag', 'defined') | map(attribute='tag') | list | unique }}"
+  no_log: "{{ log_status | default(False)}}"
   vars:
     query: "[?contains(profile.tag, '{{ item }}')]"
     defined_vms: "{{ create_vms | selectattr('profile.tag', 'defined') | list | unique }}"
@@ -104,6 +109,7 @@
 - block:
     - set_fact:
         ip_cond: "ovirt_vms | ovirtvmip{{ wait_for_ip_version }} | length > 0"
+      no_log: "{{ log_status | default(False)}}"
 
     - name: Wait for VMs IP
       ovirt_vm_facts:
@@ -113,6 +119,7 @@
         nested_attributes: ips
       with_items:
         - "{{ create_vms }}"
+      no_log: "{{ log_status | default(False)}}"
       until: "ip_cond"
       retries: "{{ vm_infra_wait_for_ip_retries }}"
       delay: "{{ vm_infra_wait_for_ip_delay }}"

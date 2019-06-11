@@ -4,3 +4,4 @@
     auth: "{{ ovirt_auth }}"
     state: "absent"
     name: "{{ current_vm.name }}"
+  no_log: "{{ log_status | default(False)}}"
